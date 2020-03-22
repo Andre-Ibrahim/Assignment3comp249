@@ -2,7 +2,7 @@
 public class FileInvalidException extends Exception{
 	
 	public FileInvalidException() {
-		super("This file is not valid");
+		super("Problem detected with input file: ");
 	}
 	
 	public FileInvalidException(String message) {

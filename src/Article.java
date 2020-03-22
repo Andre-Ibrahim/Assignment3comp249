@@ -34,6 +34,17 @@ public class Article {
 		this.pages = pages;
 		
 	}
+	
+
+	public boolean isValid() {
+		return valid;
+	}
+
+
+	public void setValid(boolean valid) {
+		this.valid = valid;
+	}
+
 
 	@Override
 	public String toString() {

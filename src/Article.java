@@ -1,3 +1,4 @@
+import java.util.StringTokenizer;
 
 public class Article {
 	
@@ -43,6 +44,21 @@ public class Article {
 
 	public void setValid(boolean valid) {
 		this.valid = valid;
+	}
+	public String IeeeString() {
+		return author.replace(" and", ",") + "." +"\"" + title + "\", " + journal + " vol. " + volume + ", no. " + number
+				+ ", p. " + pages + ", " + month + " " + year + ".\n\n";
+	}
+	
+	public String AcmString(int count) {
+		StringTokenizer auth = new StringTokenizer(this.author);
+		return "[" + count + "]" + "\t" + auth.nextToken() + " " + auth.nextToken() + "et al. " + year 
+				+ ". " + title + ". " + journal + ". " + volume + ", " + "(" + year + "), " + pages
+				+ ". DOI:https://doi.org/" + doi + "\n\n";
+	}
+	
+	public String NjString() {
+		return author.replace("and", "&") + ". " + title + ". " + journal + ". " + volume + ", " + pages + "(" + year + ").\n\n";
 	}
 
 

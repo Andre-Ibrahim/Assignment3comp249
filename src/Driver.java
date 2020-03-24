@@ -20,17 +20,24 @@ public class Driver {
 
 	
 	public static void main(String[] args) {
+		read = new ArrayList<Scanner>();
+		WriteIeee = new ArrayList<PrintWriter>();
+		WriteAcm = new ArrayList<PrintWriter>();
+		WriteNj = new ArrayList<PrintWriter>();
+		
+		
 		
 		File folder = new File("./");
 		File[] allFiles = folder.listFiles();
 		articlesInFiles = new ArrayList<ArrayList<Article>>();
+		
 		allbibFiles = new ArrayList<File>();
 		for(int i = 0; i < allFiles.length; i++) {
 			if(allFiles[i].getName().contains(".bib"))
 				allbibFiles.add(allFiles[i]);
 		}
 		
-		
+		System.out.println(allbibFiles.get(0));
 		
 		char number = 'x';// to keep compiler happy
 		String error = "";
@@ -38,9 +45,10 @@ public class Driver {
 		for(int i = 0; i < allbibFiles.size(); i++) 
 		{
 			//arr = new ArrayList<Article>();
-
+				Scanner temp = null;
 				try {
-					read.add(new Scanner(new FileInputStream(allbibFiles.get(i))));					
+					temp = new Scanner(new FileInputStream(allbibFiles.get(i)));
+					read.add(temp);					
 												//readArticle(allFiles[i]);
 												//articlesInFiles.add(arr);
 												//arr = null;
@@ -79,6 +87,10 @@ public class Driver {
 				System.exit(0);
 				
 			}
+
+		processFilesForValidation();
+		
+		
 		
 	}
 	
@@ -99,11 +111,41 @@ public class Driver {
 	}
 	
 	public static void processFilesForValidation(){
-		//creating ArrayList containing all articles in all files
 		
+		System.out.println(read.size());
+		for(int i = 0;i < read.size();i++) {//creating ArrayList containing all articles in all files
+			arr = new ArrayList<Article>();
+			readArticle(i);
+			
+			articlesInFiles.add(arr);
+			
+			arr = null;
+		}
+		closeScannerInArraylist();
+		
+		write(WriteIeee, "IEEE");
+		write(WriteAcm, "ACM");
+		write(WriteNj, "NJ");
+		
+		
+		
+		closePrintWriter();
 																//	System.out.println(allFiles.length); // testing
-		
-		
+	}
+	public static void write( ArrayList<PrintWriter> write, String type) {
+		boolean valid = true;
+		for(int i = 0; i < write.size();i++) {
+			for(int j = 0; j < articlesInFiles.get(i).size(); j++) {
+				
+				valid = articlesInFiles.get(i).get(j).isValid();
+					if(type.equals("IEEE") && valid)
+						write.get(i).write(articlesInFiles.get(i).get(j).IeeeString());
+					if(type.equals("ACM") && valid)
+						write.get(i).write(articlesInFiles.get(i).get(j).AcmString(j));
+					if(type.equals("NJ") && valid)
+						write.get(i).write(articlesInFiles.get(i).get(j).NjString());
+			}
+		}
 	}
 	public static void readArticle(int i) { //replace boolean by void and return statement to thrown exception
 		
@@ -112,6 +154,7 @@ public class Driver {
 			//read = new Scanner(new FileInputStream(file));
 			
 			while(read.get(i).hasNextLine()) {
+				
 				
 			
 			String article = read.get(i).nextLine();
@@ -182,17 +225,16 @@ public class Driver {
 				}
 			}
 			
-			
 			arr.add(new Article( author,  year,  journal,  title,  volume,  number,
 					 keywords,  doi,  ISSN,  month,  id,  valid,  pages));
-			read.get(i).nextLine();
+			//read.get(i).nextLine();
 			}
 			
 			
 		}
 		catch(FileInvalidException f) {
 			arr.get(i).setValid(false);
-			System.out.println(f.getMessage());
+			System.out.println(f.getMessage() );
 		}		
 	}
 }

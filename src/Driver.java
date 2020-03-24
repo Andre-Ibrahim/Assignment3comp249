@@ -41,7 +41,7 @@ public class Driver {
 		
 		System.out.println(allbibFiles.get(0));
 		
-		char number = 'x';// to keep compiler happy
+		String name = "";// to keep compiler happy
 		String error = "";
 		
 		for(int i = 0; i < allbibFiles.size(); i++) 
@@ -66,18 +66,19 @@ public class Driver {
 		}
 		for(int i = 0; i < allbibFiles.size(); i++)
 			try {
-				number = allbibFiles.get(i).getName().charAt(allbibFiles.get(i).getName().indexOf(".") - 1);			
+				name = allbibFiles.get(i).getName().substring(allbibFiles.get(i).getName().indexOf("x") + 1 ,allbibFiles.get(i).getName().indexOf("."));			
+				
 				error = "IEEE";
-				WriteIeee.add(new PrintWriter(new FileOutputStream("IEEE" + number + ".json",true)));
+				WriteIeee.add(new PrintWriter(new FileOutputStream("IEEE" + name + ".json",true)));
 				error = "ACM";
-				WriteAcm.add(new PrintWriter(new FileOutputStream("ACM" + number + ".json",true)));
+				WriteAcm.add(new PrintWriter(new FileOutputStream("ACM" + name + ".json",true)));
 				error = "NJ";
-				WriteNj.add(new PrintWriter(new FileOutputStream("NJ" + number + ".json",true)));
+				WriteNj.add(new PrintWriter(new FileOutputStream("NJ" + name + ".json",true)));
 				
 			}
 			catch(IOException g)
 			{
-				System.out.println("There was a problem openning " + error + number + ".json");
+				System.out.println("There was a problem openning " + error + name + ".json");
 				System.out.println("All json files will be deleted before the program gets terminated");
 				File[] FilesWithJson = folder.listFiles();
 				
@@ -128,10 +129,21 @@ public class Driver {
 				//File folder = new File("./");
 				//File[] allFiles = folder.listFiles();
 				WriteIeee.get(i).close();
+				WriteAcm.get(i).close();
+				WriteNj.get(i).close();
 				
-				char num = allbibFiles.get(i).getName().charAt(allbibFiles.get(i).getName().indexOf(".") - 1);
+				System.out.println(e.getMessage() + "\t" +  allbibFiles.get(i).getName() + "\n");
+				System.out.println("All subsequent files created for it will be deleted");
+				System.out.println("___________________________________________________");
+				
+				String num = allbibFiles.get(i).getName().substring( allbibFiles.get(i).getName().indexOf("x") + 1, allbibFiles.get(i).getName().indexOf("."));
 				File Ieee = new File("IEEE" + num + ".json");
+				File Acm = new File("ACM" + num + ".json");
+				File Nj = new File("NJ" + num + ".json");
+				
 				Ieee.delete();
+				Acm.delete();
+				Nj.delete();
 			}
 			
 			
@@ -187,10 +199,17 @@ public class Driver {
 			
 			String article = read.get(i).nextLine();
 			
-			if(!article.equals("@ARTICLE{"))
+			if(!article.contains("@ARTICLE{"))
 				continue;
 			
-			String id = read.get(i).nextLine();
+								//added
+			String id = "";
+			id = read.get(i).nextLine();
+			
+			while(id.length() == 0)
+				id = read.get(i).nextLine();
+			
+			
 			String variable = null;
 			String content = null;
 			boolean valid = true;
@@ -208,8 +227,14 @@ public class Driver {
 			id = id.substring(0,id.length() - 2);
 				while(true) {
 					variable = read.get(i).nextLine();
+					
+					
+					
 					if(variable.equals("}"))
 						break;
+					if(!variable.contains("="))
+						continue;
+					
 					content = new String(variable);
 					variable = variable.substring(0,variable.indexOf('='));
 					content = content.substring(content.indexOf('{')+1,content.indexOf('}'));

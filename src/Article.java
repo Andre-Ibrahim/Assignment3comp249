@@ -52,7 +52,7 @@ public class Article {
 	
 	public String AcmString(int count) {
 		StringTokenizer auth = new StringTokenizer(this.author);
-		return "[" + count + "]" + "\t" + auth.nextToken() + " " + auth.nextToken() + "et al. " + year 
+		return "[" + count + "]" + "\t" + auth.nextToken() + " " + auth.nextToken() + " et al. " + year 
 				+ ". " + title + ". " + journal + ". " + volume + ", " + "(" + year + "), " + pages
 				+ ". DOI:https://doi.org/" + doi + "\n\n";
 	}

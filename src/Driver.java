@@ -20,6 +20,8 @@ public class Driver {
 
 	
 	public static void main(String[] args) {
+		
+		
 		read = new ArrayList<Scanner>();
 		WriteIeee = new ArrayList<PrintWriter>();
 		WriteAcm = new ArrayList<PrintWriter>();
@@ -78,12 +80,15 @@ public class Driver {
 				System.out.println("There was a problem openning " + error + number + ".json");
 				System.out.println("All json files will be deleted before the program gets terminated");
 				File[] FilesWithJson = folder.listFiles();
+				
+				closeScannerInArraylist();
+				closePrintWriter();
+				
 				for(int j = 0; j > FilesWithJson.length; j++) {
 					if(FilesWithJson[j].getName().contains(".json"))
 						FilesWithJson[j].delete();
 				}
-				closeScannerInArraylist();
-				closePrintWriter();
+				
 				System.exit(0);
 				
 			}
@@ -115,12 +120,27 @@ public class Driver {
 		System.out.println(read.size());
 		for(int i = 0;i < read.size();i++) {//creating ArrayList containing all articles in all files
 			arr = new ArrayList<Article>();
-			readArticle(i);
+			
+			try {
+				readArticle(i);
+			}
+			catch(FileInvalidException e) {
+				//File folder = new File("./");
+				//File[] allFiles = folder.listFiles();
+				WriteIeee.get(i).close();
+				
+				char num = allbibFiles.get(i).getName().charAt(allbibFiles.get(i).getName().indexOf(".") - 1);
+				File Ieee = new File("IEEE" + num + ".json");
+				Ieee.delete();
+			}
+			
 			
 			articlesInFiles.add(arr);
 			
 			arr = null;
 		}
+		
+		
 		closeScannerInArraylist();
 		
 		write(WriteIeee, "IEEE");
@@ -130,27 +150,35 @@ public class Driver {
 		
 		
 		closePrintWriter();
+		
+		System.out.println("aaaaaa");
 																//	System.out.println(allFiles.length); // testing
 	}
 	public static void write( ArrayList<PrintWriter> write, String type) {
+		
+		
 		boolean valid = true;
+		
+		
 		for(int i = 0; i < write.size();i++) {
+			
+			
 			for(int j = 0; j < articlesInFiles.get(i).size(); j++) {
 				
 				valid = articlesInFiles.get(i).get(j).isValid();
-					if(type.equals("IEEE") && valid)
+					if(type.equals("IEEE"))
 						write.get(i).write(articlesInFiles.get(i).get(j).IeeeString());
-					if(type.equals("ACM") && valid)
+					if(type.equals("ACM"))
 						write.get(i).write(articlesInFiles.get(i).get(j).AcmString(j));
-					if(type.equals("NJ") && valid)
+					if(type.equals("NJ"))
 						write.get(i).write(articlesInFiles.get(i).get(j).NjString());
 			}
 		}
 	}
-	public static void readArticle(int i) { //replace boolean by void and return statement to thrown exception
+	public static void readArticle(int i) throws FileInvalidException { //replace boolean by void and return statement to thrown exception
 		
 		 
-		try {
+		
 			//read = new Scanner(new FileInputStream(file));
 			
 			while(read.get(i).hasNextLine()) {
@@ -231,10 +259,10 @@ public class Driver {
 			}
 			
 			
-		}
-		catch(FileInvalidException f) {
-			arr.get(i).setValid(false);
-			System.out.println(f.getMessage() );
-		}		
+		
+		//catch(FileInvalidException f) {
+		//	arr.get(i).setValid(false);
+		//	System.out.println(f.getMessage() );
+		//}		
 	}
 }

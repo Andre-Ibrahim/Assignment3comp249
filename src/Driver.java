@@ -1,10 +1,14 @@
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 
 
 public class Driver {
@@ -27,33 +31,26 @@ public class Driver {
 		WriteAcm = new ArrayList<PrintWriter>();
 		WriteNj = new ArrayList<PrintWriter>();
 		
-		
-		
 		File folder = new File("./");
 		File[] allFiles = folder.listFiles();
-		articlesInFiles = new ArrayList<ArrayList<Article>>();
 		
+		articlesInFiles = new ArrayList<ArrayList<Article>>();
 		allbibFiles = new ArrayList<File>();
+		
 		for(int i = 0; i < allFiles.length; i++) {
 			if(allFiles[i].getName().contains(".bib"))
 				allbibFiles.add(allFiles[i]);
 		}
-		
-		System.out.println(allbibFiles.get(0));
 		
 		String name = "";// to keep compiler happy
 		String error = "";
 		
 		for(int i = 0; i < allbibFiles.size(); i++) 
 		{
-			//arr = new ArrayList<Article>();
 				Scanner temp = null;
 				try {
 					temp = new Scanner(new FileInputStream(allbibFiles.get(i)));
 					read.add(temp);					
-												//readArticle(allFiles[i]);
-												//articlesInFiles.add(arr);
-												//arr = null;
 				}
 
 				catch(IOException e)
@@ -69,11 +66,11 @@ public class Driver {
 				name = allbibFiles.get(i).getName().substring(allbibFiles.get(i).getName().indexOf("x") + 1 ,allbibFiles.get(i).getName().indexOf("."));			
 				
 				error = "IEEE";
-				WriteIeee.add(new PrintWriter(new FileOutputStream("IEEE" + name + ".json",true)));
+				WriteIeee.add(new PrintWriter(new FileOutputStream("IEEE" + name + ".json")));
 				error = "ACM";
-				WriteAcm.add(new PrintWriter(new FileOutputStream("ACM" + name + ".json",true)));
+				WriteAcm.add(new PrintWriter(new FileOutputStream("ACM" + name + ".json")));
 				error = "NJ";
-				WriteNj.add(new PrintWriter(new FileOutputStream("NJ" + name + ".json",true)));
+				WriteNj.add(new PrintWriter(new FileOutputStream("NJ" + name + ".json")));
 				
 			}
 			catch(IOException g)
@@ -96,6 +93,71 @@ public class Driver {
 
 		processFilesForValidation();
 		
+		File folderjson = new File("./"); 
+		File[] FilesWithJson = folderjson.listFiles();
+		
+		
+		Scanner keyboard = new Scanner(System.in);
+		String input = "";
+		BufferedReader inputStream = null;
+		boolean fileFound = false;
+		String line = "";
+		
+		for(int i = 0; i < 2 && !fileFound; i++) {
+			if(i == 1)
+				System.out.println("The File is invalid you have one more chance to read a File");
+			
+			
+			System.out.print("please Enter a File name to read: ");
+			input = keyboard.nextLine();
+			
+			if(!input.contains(".json"))
+				continue;
+			
+			for(int j=0; j < FilesWithJson.length;j++) {
+				if(FilesWithJson[j].getName().equals(input))
+					fileFound = true;
+			}
+			if(fileFound) {
+				try {
+					inputStream = new BufferedReader(new FileReader(input));
+				
+				
+					try {
+						System.out.println("Here are the content of the successfully created Jason File: " + input);
+						
+						while(line != null) {
+							line = inputStream.readLine();
+							if(line != null)
+								System.out.println(line);
+						}
+
+					}
+					catch(EOFException z) {
+						if(inputStream != null)
+						inputStream.close();
+						break;
+					}
+					catch(IOException t) {
+						System.out.println("c");
+						break;
+					}
+				}
+				catch(IOException e) {
+				continue;
+				}
+				
+					
+				
+			}
+			
+			
+		}
+		keyboard.close();	
+		System.out.println("Goodbye! Hope you have enjoyed creating the needed files using Bibliography");
+		
+		
+		
 		
 		
 	}
@@ -117,8 +179,7 @@ public class Driver {
 	}
 	
 	public static void processFilesForValidation(){
-		
-		System.out.println(read.size());
+		int errorCount = 0;
 		for(int i = 0;i < read.size();i++) {//creating ArrayList containing all articles in all files
 			arr = new ArrayList<Article>();
 			
@@ -128,13 +189,16 @@ public class Driver {
 			catch(FileInvalidException e) {
 				//File folder = new File("./");
 				//File[] allFiles = folder.listFiles();
+				errorCount++;
 				WriteIeee.get(i).close();
 				WriteAcm.get(i).close();
 				WriteNj.get(i).close();
-				
-				System.out.println(e.getMessage() + "\t" +  allbibFiles.get(i).getName() + "\n");
-				System.out.println("All subsequent files created for it will be deleted");
-				System.out.println("___________________________________________________");
+				System.out.println("Error: Dectected Empty Filed!");
+				System.out.println("=============================\n");
+
+				System.out.println( "Problem dected with input file:" + "\t" +  allbibFiles.get(i).getName() + "\n");
+				System.out.println(e.getMessage());
+				System.out.println();
 				
 				String num = allbibFiles.get(i).getName().substring( allbibFiles.get(i).getName().indexOf("x") + 1, allbibFiles.get(i).getName().indexOf("."));
 				File Ieee = new File("IEEE" + num + ".json");
@@ -152,6 +216,8 @@ public class Driver {
 			arr = null;
 		}
 		
+		System.out.println("A total of " + errorCount + " files where invalid, and could not be processed. All other " + (read.size() - errorCount) + " \"Valid\" files have been created.");
+		
 		
 		closeScannerInArraylist();
 		
@@ -163,7 +229,6 @@ public class Driver {
 		
 		closePrintWriter();
 		
-		System.out.println("aaaaaa");
 																//	System.out.println(allFiles.length); // testing
 	}
 	public static void write( ArrayList<PrintWriter> write, String type) {
@@ -181,7 +246,7 @@ public class Driver {
 					if(type.equals("IEEE"))
 						write.get(i).write(articlesInFiles.get(i).get(j).IeeeString());
 					if(type.equals("ACM"))
-						write.get(i).write(articlesInFiles.get(i).get(j).AcmString(j));
+						write.get(i).write(articlesInFiles.get(i).get(j).AcmString(j + 1));
 					if(type.equals("NJ"))
 						write.get(i).write(articlesInFiles.get(i).get(j).NjString());
 			}
@@ -238,8 +303,9 @@ public class Driver {
 					content = new String(variable);
 					variable = variable.substring(0,variable.indexOf('='));
 					content = content.substring(content.indexOf('{')+1,content.indexOf('}'));
-						if(content.equals(""))
-							throw new FileInvalidException();//return false;
+						if(content.equals("")) {						
+							throw new FileInvalidException("File is Invalid: Field " + variable + "is Empty." + "Processing stoped at this point. Other empty fieleds ma be present as well!");
+						}
 					switch(variable) {
 						case "author":
 							author = content;
@@ -280,14 +346,8 @@ public class Driver {
 			
 			arr.add(new Article( author,  year,  journal,  title,  volume,  number,
 					 keywords,  doi,  ISSN,  month,  id,  valid,  pages));
-			//read.get(i).nextLine();
 			}
 			
-			
-		
-		//catch(FileInvalidException f) {
-		//	arr.get(i).setValid(false);
-		//	System.out.println(f.getMessage() );
-		//}		
+
 	}
 }
